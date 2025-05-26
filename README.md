@@ -1,36 +1,166 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mini Booking Platform
+
+A demo project showcasing a booking platform built with Next.js, TypeScript, and Supabase. This platform allows users to browse and book various objects (venues, tickets, etc.) while demonstrating modern web development practices.
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 + TypeScript
+- **Backend/Database/Auth**: Supabase
+- **Styling**: TailwindCSS
+- **Form Handling**: React Hook Form + Zod
+- **PDF Generation**: pdf-lib
+- **Email**: Simulated email service
+- **Payments**: Stripe (optional)
+
+## Features
+
+### Authentication
+- Email + password sign-up/login
+- Role-based access (Admin/User)
+- Protected routes
+
+### Admin Features
+- Create and manage bookable objects
+- View personal dashboard
+- Download object information as PDF
+- View bookings for owned objects
+
+### User Features
+- Browse all available objects
+- View object details
+- Download object information
+- Book objects (optional Stripe integration)
+
+### Additional Features
+- PDF generation for object details
+- Email notifications
+- Form validation
+- Responsive design
+- Row Level Security (RLS)
 
 ## Getting Started
 
-First, run the development server:
-
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd mini-booking-platform
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up Supabase
+- Create a new project at [Supabase](https://supabase.com)
+- Copy the SQL from `supabase/migrations/00-initial-schema.sql` and run it in the Supabase SQL editor
+- Enable Email Auth in Authentication settings
+- Create the following storage buckets (optional):
+  - `object-images` for storing object images
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Set up environment variables
+Create a `.env.local` file with the following variables:
+```
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-## Learn More
+# Optional - for Stripe integration
+STRIPE_SECRET_KEY=your-stripe-secret-key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your-stripe-publishable-key
 
-To learn more about Next.js, take a look at the following resources:
+# Optional - for email service
+EMAIL_FROM=noreply@yourdomain.com
+EMAIL_SERVER=smtp://username:password@smtp.yourdomain.com:587
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Run the development server
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                 # Next.js app router pages
+├── components/         # React components
+│   ├── auth/          # Authentication components
+│   ├── layout/        # Layout components
+│   └── ui/            # Reusable UI components
+├── lib/               # Utility functions and configurations
+├── types/             # TypeScript type definitions
+└── middleware.ts      # Authentication middleware
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+supabase/
+└── migrations/        # Database migrations
+```
+
+## Database Schema
+
+The project uses Supabase with the following main tables:
+
+### profiles
+- `id`: UUID (references auth.users)
+- `email`: TEXT
+- `role`: user_role ENUM ('admin', 'user')
+- `created_at`: TIMESTAMP
+- `updated_at`: TIMESTAMP
+
+### bookable_objects
+- `id`: UUID
+- `name`: TEXT
+- `address`: TEXT
+- `capacity`: INTEGER
+- `image_url`: TEXT (optional)
+- `price`: DECIMAL (optional)
+- `created_by`: UUID (references auth.users)
+- `created_at`: TIMESTAMP
+- `updated_at`: TIMESTAMP
+
+### bookings
+- `id`: UUID
+- `object_id`: UUID (references bookable_objects)
+- `user_id`: UUID (references auth.users)
+- `booking_date`: TIMESTAMP
+- `status`: TEXT ('pending', 'confirmed', 'cancelled')
+- `created_at`: TIMESTAMP
+- `updated_at`: TIMESTAMP
+
+Row Level Security (RLS) policies are implemented to ensure:
+- Admins can only manage their own objects
+- Users can only view their own bookings
+- Public access is limited to viewing objects
+
+## Development Workflow
+
+1. **Authentication Flow**
+   - Users can sign up/in via email
+   - New users are automatically assigned the 'user' role
+   - Admins must be manually upgraded in the database
+
+2. **Object Management**
+   - Admins can create/edit/delete their objects
+   - Objects require name, address, and capacity
+   - Optional fields: price, image URL
+
+3. **Booking Process**
+   - Users browse the catalog
+   - View object details
+   - Download PDF information
+   - Book objects (if Stripe is integrated)
+
+4. **Security**
+   - All database access is controlled via RLS
+   - Environment variables for sensitive data
+   - Server-side validation for all operations
+
+## Contributing
+
+This is a demo project, but contributions are welcome! Please feel free to submit issues and pull requests.
+
+## License
+
+MIT
