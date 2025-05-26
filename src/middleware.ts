@@ -11,9 +11,6 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getSession();
 
   if (request.nextUrl.pathname.startsWith('/login')) {
-    if (session) {
-      return NextResponse.redirect(new URL('/catalog', request.url));
-    }
     return res;
   }
 

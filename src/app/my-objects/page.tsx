@@ -11,12 +11,16 @@ export default async function MyObjectsPage() {
   const supabase = createServerComponentClient({ cookies });
 
   // Check if user is admin
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('role')
     .single();
 
+  console.log('User profile:', profile);
+  console.log('Profile error:', profileError);
+
   if (!profile || profile.role !== 'admin') {
+    console.log('Access denied: User is not an admin');
     redirect('/');
   }
 
@@ -30,6 +34,9 @@ export default async function MyObjectsPage() {
       )
     `)
     .order('created_at', { ascending: false });
+
+  console.log('My objects:', objects);
+  console.log('Objects error:', error);
 
   if (error) {
     console.error('Error fetching objects:', error);

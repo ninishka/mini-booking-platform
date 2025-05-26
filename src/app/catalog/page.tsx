@@ -13,6 +13,9 @@ export default async function CatalogPage() {
     .select('*')
     .order('created_at', { ascending: false });
 
+  console.log('Catalog objects:', objects);
+  console.log('Catalog error:', error);
+
   if (error) {
     console.error('Error fetching objects:', error);
     return <div>Error loading objects. Please try again later.</div>;
@@ -23,7 +26,7 @@ export default async function CatalogPage() {
       <h1 className="text-3xl font-bold mb-8">Available Objects</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {objects.map((object) => (
+        {objects?.map((object) => (
           <div
             key={object.id}
             className="bg-white rounded-lg shadow-md overflow-hidden"
@@ -47,13 +50,13 @@ export default async function CatalogPage() {
                 </p>
               )}
               <Link href={`/entity/${object.id}`}>
-                <Button className="w-full">View Details</Button>
+                <Button className="w-full">View Details & Download PDF</Button>
               </Link>
             </div>
           </div>
         ))}
       </div>
-      {objects.length === 0 && (
+      {(!objects || objects.length === 0) && (
         <p className="text-center text-gray-600">
           No objects available at the moment.
         </p>

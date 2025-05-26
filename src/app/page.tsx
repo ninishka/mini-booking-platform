@@ -1,7 +1,14 @@
+'use client';
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Dialog } from '@headlessui/react';
+import { Fragment, useState } from 'react';
+import { AuthForm } from '@/components/auth/auth-form';
 
 export default function HomePage() {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="relative isolate">
       <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
@@ -15,18 +22,23 @@ export default function HomePage() {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link href="/catalog">
-              <Button size="lg">
-                Browse Catalog
-              </Button>
+              <Button size="lg">Browse Catalog</Button>
             </Link>
-            <Link href="/login">
-              <Button variant="outline" size="lg">
-                Sign In
-              </Button>
-            </Link>
+            <Button variant="outline" size="lg" onClick={() => setOpen(true)}>
+              Sign In
+            </Button>
           </div>
         </div>
       </div>
+
+      <Dialog open={open} onClose={() => setOpen(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="bg-white rounded-xl p-6 w-full max-w-md shadow-xl">
+            <AuthForm />
+          </Dialog.Panel>
+        </div>
+      </Dialog>
     </div>
   );
 }
